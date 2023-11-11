@@ -1,0 +1,6 @@
+client 
+  npm run build
+
+docker
+  sudo docker-compose up --build
+  sudo docker-compose down 

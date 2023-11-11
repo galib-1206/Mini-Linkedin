@@ -1,0 +1,74 @@
+version: '3'
+services:
+  client:
+    build: .
+    image: galib9940/client
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    networks:
+      - my-network
+    
+  user:
+    build: ./user
+    image: galib9940/user
+    restart: unless-stopped
+    networks:
+      - my-network
+    depends_on:
+      - usermongodb
+
+  usermongodb:
+    image: mongo:latest
+    networks:
+      - my-network
+
+  post:
+    build: ./post
+    image: galib9940/post
+    restart: unless-stopped
+    networks:
+      - my-network
+    depends_on:
+      - postmongodb
+
+  postmongodb:
+    image: mongo:latest
+    networks:
+      - my-network
+
+  notification:
+    build: ./notification
+    image: galib9940/notification
+    restart: unless-stopped
+    networks:
+      - my-network
+    depends_on:
+      - notificationmongodb
+
+  notificationmongodb:
+    image: mongo:latest
+    networks:
+      - my-network
+
+
+  storyobjectdb:
+    image: minio/minio:latest
+    ports:
+      - "9002:9000" #image uploading from post-> local host:9002
+                    #minio port:9000
+      - "9003:9001" # image browsing in machine port 9003
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=password
+    command: server --address 0.0.0.0:9000 --console-address :9001 /data
+    volumes:
+      - storyobjectdata:/data
+    networks:
+      - my-network
+   
+networks:
+  my-network:
+
+volumes:
+  storyobjectdata:
